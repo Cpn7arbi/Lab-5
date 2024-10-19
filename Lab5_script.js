@@ -1,5 +1,3 @@
-//Players info
-
 const data = [
     {
         name: "Joel Embiid",
@@ -444,118 +442,81 @@ const data = [
     }
 ];
 
-// Populate the table with player status
-
-const tbody = document.getElementById("player-rows");
-
-PopulateTable();
 
 
-function PopulateTable(){
-    
-    data.forEach((player) => {
 
+
+const searchInput = document.getElementById("search");
+const teamFilter = document.getElementById("team-filter");
+const playerRows = document.getElementById("player-rows");
+
+// Function to populate the table with player data
+function populateTable(players) {
+    playerRows.innerHTML = ""; 
+
+    players.forEach(player => {
         const row = document.createElement("tr");
-
-        const nameCell = document.createElement("td");
-        nameCell.textContent = player.name;
-
-        const teamCell = document.createElement("td");
-        teamCell.textContent = player.team;
-
-        const pointsCell = document.createElement("td");
-        pointsCell.textContent = player.points;
-
-        
-        const reboundsCell  = document.createElement("td");
-        reboundsCell.textContent = player.rebounds;
-
-        
-        const assistsCell = document.createElement("td");
-        assistsCell.textContent = player.assists;
-
-
-        row.appendChild(nameCell);
-        row.appendChild(teamCell);
-        row.appendChild(pointsCell);
-        row.appendChild(reboundsCell);
-        row.appendChild(assistsCell);
-
-        tbody.appendChild(row);
-
-
-        
+        row.innerHTML = `
+            <td>${player.name}</td>
+            <td>${player.team}</td>
+            <td>${player.points}</td>
+            <td>${player.rebounds}</td>
+            <td>${player.assists}</td>
+        `;
+        playerRows.appendChild(row);
     });
-};
+}
 
-// Searching part
+//Populate
+function populateTeamFilter() {
+    const teams = [...new Set(data.map(player => player.team))]; // Get unique teams
 
-let inputSearchElem = document.querySelector(".search");
-inputSearchElem.addEventListener("keyup", filterByPlayersName);
+    teams.forEach(team => {
+        const option = document.createElement("option");
+        option.value = team;
+        option.textContent = team;
+        teamFilter.appendChild(option);
+    });
+}
 
-let SortingTeams = document.querySelector(".team-filter");
-SortingTeams.addEventListener("change" , filterByTeam);
+// Filter
+function filterPlayers() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const selectedTeam = teamFilter.value;
 
+    const filteredPlayers = data.filter(player => {
+        const matchesName = player.name.toLowerCase().includes(searchTerm);
+        const matchesTeam = selectedTeam === "all" || player.team === selectedTeam;
+        return matchesName && matchesTeam;
+    });
 
-function filterByPlayersName(){
+    populateTable(filteredPlayers);
+}
 
-    let input = document.querySelector(".search");
-    let word = input.value.toLowerCase(); 
-    let rows = document.querySelectorAll("tbody tr");
+searchInput.addEventListener("input", filterPlayers);
+teamFilter.addEventListener("change", filterPlayers);
 
-    for (let i = 0; i < rows.length; i++) {
-        let td = rows[i].getElementsByTagName("td")[0];
-        let textValue = td.innerText;
-        if (textValue.toLowerCase().indexOf(word) > -1) {
-          rows[i].style.display = "";
-        } else
-          rows[i].style.display = "none";
-        };
-
-};
-
-
-function filterByTeam(){
-    
-    let input = document.querySelector(".team-filter");
-    let team = input.value.toLowerCase();
-    let rows = document.querySelectorAll("tbody tr");
-
-    for (let i = 0; i < rows.length; i++) {
-
-        let td = rows[i].getElementsByTagName("td")[1];
-        let textValue = td.textContent || td.innerText;
-
-        if(team == "all"){
-            rows[i].style.display = "";
-        }
-        else if(textValue.toLowerCase() == team){
-            rows[i].style.display = "";
-
-        }
-        else{
-            rows[i].style.display = "none";
-        };
-
-};
-};
+populateTable(data);
+populateTeamFilter();
 
 
 
+// Switching Themes Dark/Light
+const themeSwitcher = document.getElementById('dark-mode-toggle');
+
+themeSwitcher.addEventListener('click', switchTheme);
+
+function switchTheme() {
+    document.body.classList.toggle('dark-mode');
+
+    if (document.body.classList.contains('dark-mode')) {
+
+        themeSwitcher.innerText = 'Light Mode';  
+
+    } else {
+
+        themeSwitcher.innerText = 'Dark Mode';   
+    }
+}
 
 
-// Dark/Light Mode Button
-
-let button = document.querySelector(".dark-mode");
-button.addEventListener("click" , DarkModeButton);
-
-function DarkModeButton(){
-
-  document.body.classList.toggle("dark-mode");
-
-  if(document.body.classList.contains("dark-mode")){
-    button.textContent = "Light Mode";
-  }else{
-    button.textContent = "Dark Mode";
-  }
-};
